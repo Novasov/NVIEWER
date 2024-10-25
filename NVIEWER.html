@@ -1,0 +1,401 @@
+<!-- The page NVIEWER was created and developed by Alexander Novasov in 2024 and is the property of Novasov. --->
+<!-- The page is a simple format converter for any files from your PC. After conversion, all files will be downloaded in a new format and stored in a ZIP archive. Files are downloaded in their original size. The page doesn't support some old formats and formats from games and soft. If for some reason the files don't open after conversion, use another format or don't use this page. -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="https://github.githubassets.com/favicons/favicon-dark.png" type="image/x-icon">
+    <title>Novasov's Viewer</title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(140deg, #ff7f50, #1e90ff);
+            background-size: 300% 300%;
+            animation: gradient 15s ease infinite;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background-color: #3b3b58;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            padding: 40px;
+            text-align: center;
+            width: 600px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.6);
+        }
+
+        #fileTypeInput {
+            padding: 10px;
+            font-size: 1em;
+            border: 2px solid #ff6347;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            background-color: #fff;
+            color: #333;
+        }
+
+        .upload {
+            display: none;
+            margin-top: 20px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #ff6347;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .file-input-label:hover {
+            background-color: #ff4500;
+            box-shadow: 0 0 20px rgba(255, 99, 71, 0.6);
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #ff6347;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        button:hover {
+            background-color: #ff4500;
+            box-shadow: 0 0 20px rgba(255, 99, 71, 0.6);
+        }
+
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            justify-content: center;
+            background-color: #444;
+            padding: 10px;
+            max-height: 256px;
+            overflow-y: auto;
+        }
+
+        .preview-item {
+    margin: 5px;
+    width: 256px;
+    height: 256px;
+    overflow: hidden;
+    border-radius: 10px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.preview-item img, 
+.preview-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+        .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(51, 51, 51, 0.5);
+    border-radius: 10px;
+}
+
+.modal img, .modal video {
+    max-width: 50%;
+    max-height: 50%;
+    object-fit: contain;
+    display: block;
+    margin: auto;
+}
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .navigation-buttons {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .prev {
+            left: 10px;
+        }
+
+        .next {
+            right: 10px;
+        }
+
+.creator {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 16px;
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.creator a {
+    color: #FF9800;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.creator a:hover {
+    color: #F57C00;
+}
+    </style>
+	<script>
+        function validateInput(event) {
+            const key = event.key;
+
+            const validKeys = /^[A-Za-z0-9.]*$/;
+
+            const inputField = document.getElementById("fileTypeInput");
+            const currentValue = inputField.value;
+
+            if (currentValue.length >= 16 && key !== "Backspace") {
+                event.preventDefault();
+                return;
+            }
+
+            if (!validKeys.test(key) && key !== "Backspace") {
+                event.preventDefault();
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Novasov's Viewer</h1>
+        <h2>Convert your files now!</h2>
+        <input type="text" id="fileTypeInput" placeholder="Enter any format in which you want to download files, for example (jpg or .jpg)" onkeypress="validateInput(event)" />
+        <div class="upload" id="uploadDiv">
+            <label class="file-input-label" for="fileInput">Select Files</label>
+            <input type="file" id="fileInput" multiple />
+            <button onclick="convertFiles()">Download</button>
+        </div>
+        <div class="preview-container" id="previewContainer" style="display:none;"></div>
+        <div class="creator">
+            CREATOR <a href="#" id="linkToAlexNovasov">ALEX NOVASOV</a>
+        </div>
+    </div>
+
+    <script>
+    document.getElementById('linkToAlexNovasov').onclick = function (event) {
+        event.preventDefault();
+        const searchEngines = [
+            'https://www.google.com/search?q=',
+            'https://www.yandex.com/search/?text=',
+            'https://search.yahoo.com/search?p=',
+            'https://www.bing.com/search?q=',
+            'https://duckduckgo.com/?q='
+        ];
+        const randomSearchEngine = searchEngines[Math.floor(Math.random() * searchEngines.length)];
+        
+        const queries = ["Alex Novasov", "Novasov", "Alexander Novasov", "Novasov1", "#Novasov"];
+        const randomQuery = queries[Math.floor(Math.random() * queries.length)];
+        
+        const query = encodeURIComponent(randomQuery);
+        window.open(randomSearchEngine + query, '_blank');
+    };
+</script>
+
+    <div class="modal" id="modal">
+        <div class="modal-content" id="modalContent">
+            <button class="modal-close" onclick="closeModal(event)" aria-label="Close">✖</button>
+            <div id="modalMediaContainer"></div>
+            <span class="navigation-buttons prev" onclick="showPrev()" aria-label="Prev Image">❮</span>
+            <span class="navigation-buttons next" onclick="showNext()" aria-label="Next Image">❯</span>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+    let fileExtension = '';
+    let currentFileIndex = 0;
+    let files = [];
+
+    document.getElementById('fileTypeInput').addEventListener('input', function() {
+        fileExtension = this.value.trim();
+        document.getElementById('uploadDiv').style.display = fileExtension ? 'block' : 'none';
+    });
+
+    document.getElementById('fileInput').addEventListener('change', function() {
+        const previewContainer = document.getElementById('previewContainer');
+        previewContainer.innerHTML = '';
+        files = Array.from(this.files);
+        let hasValidFiles = false;
+
+        files.forEach((file, index) => {
+            if (file.type.startsWith('image/') || file.type.startsWith('video/') || file.type.startsWith('audio/')) {
+                hasValidFiles = true;
+                const url = URL.createObjectURL(file);
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+
+                if (file.type.startsWith('image/')) {
+                    previewItem.innerHTML = `<img src="${url}" alt="Image preview" />`;
+                    previewItem.onclick = () => openModal(index);
+                } else if (file.type.startsWith('video/')) {
+                    previewItem.innerHTML = `<video src="${url}" controls loop>`;
+                } else {
+                    previewItem.innerHTML = `<audio src="${url}" controls loop>`;
+                }
+
+                previewContainer.appendChild(previewItem);
+            }
+        });
+
+        previewContainer.style.display = hasValidFiles ? 'flex' : 'none';
+    });
+
+    function openModal(index) {
+        currentFileIndex = index;
+        const modal = document.getElementById('modal');
+        const modalMediaContainer = document.getElementById('modalMediaContainer');
+        const file = files[currentFileIndex];
+        const url = URL.createObjectURL(file);
+        modalMediaContainer.innerHTML = '';
+
+        if (file.type.startsWith('image/')) {
+            const img = document.createElement('img');
+            img.src = url;
+            modalMediaContainer.appendChild(img);
+        } else if (file.type.startsWith('video/')) {
+            const video = document.createElement('video');
+            video.src = url;
+            video.controls = true;
+            modalMediaContainer.appendChild(video);
+        } else if (file.type.startsWith('audio/')) {
+            const audio = document.createElement('audio');
+            audio.src = url;
+            audio.controls = true;
+            modalMediaContainer.appendChild(audio);
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    function closeModal(event) {
+        if (event.target === event.currentTarget || event.target.classList.contains('closeButton')) {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'none';
+            const modalMediaContainer = document.getElementById('modalMediaContainer');
+            modalMediaContainer.innerHTML = '';
+        }
+    }
+
+    function showPrev() {
+        if (currentFileIndex > 0) {
+            currentFileIndex--;
+            openModal(currentFileIndex);
+        }
+    }
+
+    function showNext() {
+        if (currentFileIndex < files.length - 1) {
+            currentFileIndex++;
+            openModal(currentFileIndex);
+        }
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (document.getElementById('modal').style.display === 'flex') {
+            if (event.key === 'ArrowLeft') {
+                showPrev();
+            } else if (event.key === 'ArrowRight') {
+                showNext();
+            } else if (event.key === 'Escape') {
+                closeModal({target: document.getElementById('modal')});
+            }
+        }
+    });
+
+    function convertFiles() {
+        const newExtension = fileExtension.startsWith('.') ? fileExtension : `.${fileExtension}`;
+        const zip = new JSZip();
+        const unixTime = Math.floor(Date.now() / 1000);
+        const folderName = `nviewer_${unixTime}`;
+        const folder = zip.folder(folderName);
+
+        files.forEach((file) => {
+            const baseName = file.name.replace(/\.[^/.]+$/, "");
+            folder.file(baseName + newExtension, file);
+        });
+
+        zip.generateAsync({ type: "blob" }).then(function(content) {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = `nviewer_${unixTime}.zip`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    }
+</script>
+</body>
+</html>
+
+<!-- Alex Novasov © 2024 -->
